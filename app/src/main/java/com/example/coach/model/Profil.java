@@ -1,5 +1,7 @@
 package com.example.coach.model;
 
+import java.util.Date; // Ajout nécessaire pour la date
+
 public class Profil {
 
     // Constantes pour les seuils
@@ -19,17 +21,19 @@ public class Profil {
     private Integer sexe;
     private double img;
     private int indice;
+    private Date dateMesure; // Ajout de la propriété dateMesure
 
     /**
-     * Constructeur : valorise les propriétés et lance les calculs
+     * Constructeur modifié : ajoute dateMesure en paramètre
      */
-    public Profil(Integer poids, Integer taille, Integer age, Integer sexe) {
+    public Profil(Integer poids, Integer taille, Integer age, Integer sexe, Date dateMesure) {
         this.poids = poids;
         this.taille = taille;
         this.age = age;
         this.sexe = sexe;
-        this.img = calculImg(); //
-        this.indice = calculIndice(); //
+        this.dateMesure = dateMesure; // Valorisation de la date
+        this.img = calculImg();
+        this.indice = calculIndice();
     }
 
     /**
@@ -37,7 +41,7 @@ public class Profil {
      * @return l'img calculé
      */
     private double calculImg() {
-        double tailleM = ((double)taille) / 100.0; // Conversion cm en m
+        double tailleM = ((double)taille) / 100.0;
         img = (1.2 * poids / (tailleM * tailleM)) + (0.23 * age) - (10.83 * sexe) - 5.4;
         return img;
     }
@@ -55,7 +59,6 @@ public class Profil {
             min = MIN_HOMME;
             max = MAX_HOMME;
         }
-        // Comparaison
         if (img < min) {
             indice = 0;
         } else if (img > max) {
@@ -66,7 +69,17 @@ public class Profil {
         return indice;
     }
 
-    // --- GETTERS (Accesseurs pour la Vue) ---
+    // --- GETTERS (Accesseurs demandés aux étapes 1B et 1D) ---
+
+    public Integer getPoids() { return poids; } //
+
+    public Integer getTaille() { return taille; } //
+
+    public Integer getAge() { return age; } //
+
+    public Integer getSexe() { return sexe; } //
+
+    public Date getDateMesure() { return dateMesure; } //
 
     public double getImg() {
         return img;

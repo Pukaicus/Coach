@@ -2,13 +2,14 @@ package com.example.coach.model;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import java.util.Date; // J'ai ajouté l'importation ici
 
 public class ProfilTest {
 
-    // Création de 3 profils de test pour couvrir tous les cas
-    private Profil profilMaigre = new Profil(45, 170, 20, 0); // Femme, maigre
-    private Profil profilNormal = new Profil(70, 180, 40, 1); // Homme, normal
-    private Profil profilGras = new Profil(67, 165, 35, 0);   // Femme, grasse
+    // Ajout de "new Date()" à la fin de chaque constructeur pour corriger les erreurs
+    private Profil profilMaigre = new Profil(45, 170, 20, 0, new Date());
+    private Profil profilNormal = new Profil(70, 180, 40, 1, new Date());
+    private Profil profilGras = new Profil(67, 165, 35, 0, new Date());
 
     @Test
     public void getImg() {
