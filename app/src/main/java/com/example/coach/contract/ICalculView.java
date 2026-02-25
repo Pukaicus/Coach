@@ -6,4 +6,5 @@ public interface ICalculView {
 
     // Étape 1C : Méthode pour remplir les champs avec les données sauvegardées
     void remplirChamps(Integer poids, Integer taille, Integer age, Integer sexe);
+    void recupProfil();
 }

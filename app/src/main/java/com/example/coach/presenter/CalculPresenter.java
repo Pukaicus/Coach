@@ -1,65 +1,56 @@
 package com.example.coach.presenter;
 
-import android.content.SharedPreferences;
-import com.example.coach.model.Profil;
-import com.example.coach.contract.ICalculView; // Importation de l'interface
-import com.google.gson.Gson;
 import android.content.Context;
-import java.util.Date; // Import nécessaire pour la date
+import com.example.coach.contract.ICalculView;
+import com.example.coach.data.ProfilDAO; // On importe le nouveau package
+import com.example.coach.model.Profil;
+import java.util.Date;
 
 public class CalculPresenter {
 
     private Profil profil;
-    private static final String NOM_FIC = "coach_fic";
-    private static final String PROFIL_CLE = "profil_json";
-    private Gson gson;
-    private SharedPreferences prefs;
-    private Context context; // Ajout de la propriété context pour le chargement
+    private ICalculView view;
+    // 3C1. Déclaration de la propriété profilDAO
+    private ProfilDAO profilDAO;
 
     /**
-     * Constructeur : initialise le contexte et les outils de sauvegarde
-     * @param context le contexte de l'application (la MainActivity)
+     * Constructeur
+     * @param view la MainActivity qui implémente ICalculView
      */
-    public CalculPresenter(Context context) {
-        this.context = context; // Mémorisation du contexte indispensable pour le cast
-        this.prefs = context.getSharedPreferences(NOM_FIC, Context.MODE_PRIVATE);
-        this.gson = new Gson();
+    public CalculPresenter(ICalculView view) {
+        this.view = view;
+        // 3C1. Valorisation de la propriété profilDAO avec le contexte
+        this.profilDAO = new ProfilDAO((Context)view);
     }
 
     /**
-     * Crée un nouveau profil et le sauvegarde immédiatement
+     *  Crée un nouveau profil et l'enregistre dans la base
      */
     public void creerProfil(Integer poids, Integer taille, Integer age, Integer sexe) {
-        // C'est ici qu'on ajoute la date du jour avec 'new Date()'
+        // Création de l'objet profil
         this.profil = new Profil(poids, taille, age, sexe, new Date());
-        // Appel de la méthode de sauvegarde dès que le profil est créé
-        sauvegarderProfil(profil);
+
+        // Enregistrement via le DAO (Méthode insertProfil demandée en 3B7)
+        profilDAO.insertProfil(profil);
+
+        // Mise à jour de la vue pour afficher le résultat
+        this.view.afficherResultat(poids, taille, age, sexe, profil.getImg(), profil.getMessage());
     }
 
     /**
-     * Méthode privée pour sauvegarder le profil dans le fichier SharedPreferences
-     * @param profil l'objet profil à sérialiser
+     *  Récupère le dernier profil enregistré et l'envoie à la vue
      */
-    private void sauvegarderProfil(Profil profil) {
-        // On transforme l'objet profil en format JSON (texte)
-        String json = gson.toJson(profil);
-        // On l'ajoute dans le dictionnaire du fichier et on enregistre avec apply()
-        prefs.edit().putString(PROFIL_CLE, json).apply();
-    }
+    public void chargerDernierProfil() {
+        // Récupération via le DAO (Méthode getLastProfil demandée en 3B8)
+        this.profil = profilDAO.getLastProfil();
 
-    /**
-     * Récupération du profil sauvegardé dans le téléphone
-     */
-    public void chargerProfil() {
-        // On récupère la chaîne json dans les préférences
-        String json = prefs.getString(PROFIL_CLE, null);
-
-        // Si la chaîne n'est pas nulle, on la transforme en objet Profil
-        if (json != null) {
-            Profil profil = gson.fromJson(json, Profil.class);
-            // On demande à la vue de remplir les champs avec les données récupérées
-            // On "cast" le context en ICalculView pour accéder à remplirChamps
-            ((ICalculView)context).remplirChamps(profil.getPoids(), profil.getTaille(), profil.getAge(), profil.getSexe());
+        if (profil != null) {
+            // Si un profil existe, on remplit les champs de la vue
+            view.remplirChamps(profil.getPoids(), profil.getTaille(), profil.getAge(), profil.getSexe());
         }
+    }
+
+    public Profil getProfil() {
+        return profil;
     }
 }

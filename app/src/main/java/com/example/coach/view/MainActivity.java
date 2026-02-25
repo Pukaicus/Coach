@@ -4,80 +4,93 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.coach.R;
 import com.example.coach.presenter.CalculPresenter;
-import com.example.coach.contract.ICalculView; // Ajout de l'import de l'interface
+import com.example.coach.contract.ICalculView;
 
-// On ajoute "implements ICalculView" pour lier la vue au contrat
 public class MainActivity extends AppCompatActivity implements ICalculView {
 
-    // Propriété pour le lien avec le contrôleur
     private CalculPresenter presenter;
+    private EditText txtPoids;
+    private EditText txtTaille;
+    private EditText txtAge;
+    private RadioButton rdHomme;
+    private RadioButton rdFemme;
+    private TextView lblIMG;
+    private ImageView imgSmiley;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init(); // Appelle l'initialisation
+        init();
     }
 
-    /**
-     * Initialisation des liens avec les objets graphiques et les événements
-     */
     private void init() {
-        // Initialisation du presenter avec le contexte (this)
-        this.presenter = new CalculPresenter(this);
-        // On demande au presenter de charger d'éventuelles données sauvegardées
-        this.presenter.chargerProfil();
-
-        // On récupère le bouton de calcul
+        txtPoids = findViewById(R.id.txtPoids);
+        txtTaille = findViewById(R.id.txtTaille);
+        txtAge = findViewById(R.id.txtAge);
+        rdHomme = findViewById(R.id.rdHomme);
+        rdFemme = findViewById(R.id.rdfemme);
+        lblIMG = findViewById(R.id.lblIMG);
+        imgSmiley = findViewById(R.id.imgSmiley);
         Button btnCalc = findViewById(R.id.btnCalc);
-        TextView lblIMG = findViewById(R.id.lblIMG);
 
-        // Événement sur le clic du bouton
+        this.presenter = new CalculPresenter(this);
+
+        // CORRECTION : Appel du nouveau nom de méthode défini en 3C3
+        this.presenter.chargerDernierProfil();
+
         btnCalc.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Pour le test, on affiche en dur la valeur attendue
-                // Plus tard, nous utiliserons le "Presenter" pour faire le vrai calcul
-                lblIMG.setText("18.9 : IMG normal");
+                recupProfil();
             }
         });
     }
 
-    /**
-     * Affiche le résultat du calcul (Méthode du contrat)
-     */
     @Override
-    public void afficherResultat(Integer poids, Integer taille, Integer age, Integer sexe, Double img, String message) {
-        // Sera complété plus tard pour l'affichage réel
+    public void recupProfil() {
+        Integer poids = 0, taille = 0, age = 0, sexe = 0;
+        try {
+            poids = Integer.parseInt(txtPoids.getText().toString());
+            taille = Integer.parseInt(txtTaille.getText().toString());
+            age = Integer.parseInt(txtAge.getText().toString());
+        } catch (Exception e) {}
+
+        if (rdHomme.isChecked()) {
+            sexe = 1;
+        }
+
+        presenter.creerProfil(poids, taille, age, sexe);
     }
 
-    /**
-     * Remplit les champs avec les informations récupérées (Méthode du contrat)
-     */
+    @Override
+    public void afficherResultat(Integer poids, Integer taille, Integer age, Integer sexe, Double img, String message) {
+        lblIMG.setText(String.format("%.1f", img) + " : " + message);
+
+        if (message.equals("trop faible")) {
+            imgSmiley.setImageResource(R.drawable.maigre);
+        } else if (message.equals("trop élevé")) {
+            imgSmiley.setImageResource(R.drawable.graisse);
+        } else {
+            imgSmiley.setImageResource(R.drawable.normal);
+        }
+    }
+
     @Override
     public void remplirChamps(Integer poids, Integer taille, Integer age, Integer sexe) {
-        // Récupération des objets graphiques
-        EditText txtPoids = findViewById(R.id.txtPoids);
-        EditText txtTaille = findViewById(R.id.txtTaille);
-        EditText txtAge = findViewById(R.id.txtAge);
-        RadioButton rdHomme = findViewById(R.id.rdHomme);
-        RadioButton rdFemme = findViewById(R.id.rdfemme); // Minuscules comme dans ton XML
-
-        // Sécurité : on ne remplit que si les objets existent pour éviter le crash
         if (txtPoids != null && txtTaille != null && txtAge != null) {
             txtPoids.setText(poids.toString());
             txtTaille.setText(taille.toString());
             txtAge.setText(age.toString());
 
-            // Test sur le sexe pour cocher le bon RadioButton
-            if (sexe == 1 && rdHomme != null) {
+            if (sexe == 1) {
                 rdHomme.setChecked(true);
-            } else if (rdFemme != null) {
+            } else {
                 rdFemme.setChecked(true);
             }
         }
