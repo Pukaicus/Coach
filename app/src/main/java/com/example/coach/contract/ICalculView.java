@@ -1,10 +1,14 @@
-package com.example.coach.contract;
+package com.example.coach.contract; // On garde 'contract' si le fichier est dans ce dossier
 
 public interface ICalculView {
-    // Méthode pour afficher le résultat du calcul
-    void afficherResultat(Integer poids, Integer taille, Integer age, Integer sexe, Double img, String message);
+    /**
+     * Affiche le résultat (IMG + Message)
+     * Utilise float pour correspondre à Profil.getImg()
+     */
+    void recapRender(float img, String message);
 
-    // Étape 1C : Méthode pour remplir les champs avec les données sauvegardées
+    /**
+     * Remplit le formulaire avec les anciennes données
+     */
     void remplirChamps(Integer poids, Integer taille, Integer age, Integer sexe);
-    void recupProfil();
 }
