@@ -8,10 +8,12 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.coach.R;
 import com.example.coach.contract.ICalculView;
+import com.example.coach.model.Profil;
 import com.example.coach.presenter.CalculPresenter;
 
 public class CalculActivity extends AppCompatActivity implements ICalculView {
@@ -23,32 +25,38 @@ public class CalculActivity extends AppCompatActivity implements ICalculView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calcul);
 
-        // --- CORRECTION CRUCIALE : On passe le contexte pour initialiser le Singleton Controle ---
-        // Cela évite le NullPointerException ligne 39 dans CalculPresenter
         this.presenter = new CalculPresenter(this, getApplicationContext());
 
         init();
     }
 
     /**
-     * Initialisation des liens et chargement du dernier profil
+     * Initialisation des liens et récupération des données
      */
     private void init() {
-        // Charge les données depuis SQLite ou l'API au démarrage
-        presenter.chargerDernierProfil();
+        recupProfil();
+
         ecouteCalcul();
 
-        // Gestion du clic sur l'icône de l'historique (le presse-papier)
         View imageHisto = findViewById(R.id.btnHisto);
         if (imageHisto != null) {
             imageHisto.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Navigation vers l'écran HistoActivity
                     Intent intent = new Intent(CalculActivity.this, HistoActivity.class);
                     startActivity(intent);
                 }
             });
+        }
+    }
+
+    private void recupProfil() {
+        Profil profil = (Profil) getIntent().getSerializableExtra("profil");
+
+        if (profil != null) {
+            remplirChamps(profil.getPoids(), profil.getTaille(), profil.getAge(), profil.getSexe());
+        } else {
+            presenter.chargerDernierProfil();
         }
     }
 
@@ -60,17 +68,14 @@ public class CalculActivity extends AppCompatActivity implements ICalculView {
             @Override
             public void onClick(View v) {
                 try {
-                    // Lecture des saisies utilisateur
                     Integer poids = Integer.parseInt(((EditText)findViewById(R.id.txtPoids)).getText().toString());
                     Integer taille = Integer.parseInt(((EditText)findViewById(R.id.txtTaille)).getText().toString());
                     Integer age = Integer.parseInt(((EditText)findViewById(R.id.txtAge)).getText().toString());
                     Integer sexe = ((RadioButton)findViewById(R.id.rdHomme)).isChecked() ? 1 : 0;
 
-                    // Lancement du calcul et de l'envoi MySQL via le presenter
                     presenter.creerProfil(poids, taille, age, sexe);
 
                 } catch (Exception e) {
-                    // Affiche l'erreur si un champ est vide
                     Log.e("API_DEBUG", "Erreur de saisie : " + e.getMessage());
                 }
             }
@@ -78,7 +83,7 @@ public class CalculActivity extends AppCompatActivity implements ICalculView {
     }
 
     /**
-     * Affiche le résultat et l'émoji correspondant
+     * Affiche le résultat et l'émoji
      */
     @Override
     public void recapRender(float img, String message) {
@@ -95,7 +100,7 @@ public class CalculActivity extends AppCompatActivity implements ICalculView {
     }
 
     /**
-     * Remplit le formulaire au démarrage avec les données du dernier profil
+     * Remplit le formulaire
      */
     @Override
     public void remplirChamps(Integer poids, Integer taille, Integer age, Integer sexe) {
@@ -107,5 +112,13 @@ public class CalculActivity extends AppCompatActivity implements ICalculView {
         } else {
             ((RadioButton)findViewById(R.id.rdfemme)).setChecked(true);
         }
+    }
+
+    /**
+     * Affiche un message temporaire
+     */
+    @Override
+    public void afficherMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

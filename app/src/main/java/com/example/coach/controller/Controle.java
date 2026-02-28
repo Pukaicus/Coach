@@ -6,9 +6,9 @@ import com.example.coach.api.CoachApi;
 import com.example.coach.api.IRequestApi;
 import com.example.coach.api.ResponseApi;
 import com.example.coach.contract.ICalculView;
-import com.example.coach.model.AccessLocal; // Ajouté pour la base locale
+import com.example.coach.model.AccessLocal;
 import com.example.coach.model.Profil;
-import java.util.ArrayList; // Changé de List à ArrayList pour correspondre au Presenter
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import retrofit2.Call;
@@ -26,19 +26,17 @@ public final class Controle {
     }
 
     /**
-     * Récupération de l'instance unique (Singleton)
+     * Récupération de l'instance unique
      */
     public static Controle getInstance(Context contexte) {
         if (Controle.instance == null) {
             Controle.instance = new Controle();
             requestApi = CoachApi.getRetrofit().create(IRequestApi.class);
-            // On initialise l'accès à la base locale SQLite
             accesLocal = AccessLocal.getInstance(contexte);
         }
         return Controle.instance;
     }
 
-    // Garde cette méthode pour la compatibilité avec ton code existant
     public static Controle getInstance() {
         return instance;
     }
@@ -51,10 +49,8 @@ public final class Controle {
      * Envoi d'un profil vers l'API MySQL
      */
     public void creerProfil(Profil profil) {
-        // Sauvegarde locale d'abord
         accesLocal.ajout(profil);
 
-        // Puis envoi vers l'API
         String profilJson = CoachApi.getGson().toJson(profil);
         Call<ResponseApi<Integer>> call = requestApi.creerProfil(profilJson);
 
@@ -72,24 +68,17 @@ public final class Controle {
         });
     }
 
-    /**
-     * --- LA MÉTHODE QUI MANQUAIT : Retourne l'historique ---
-     * C'est elle qui répare l'erreur de ton CalculPresenter
-     */
     public ArrayList<Profil> getLesProfils() {
-        // On demande la liste à la base locale (SQLite) pour l'afficher sur l'Oppo
         return accesLocal.getLesProfils();
     }
 
     public void chargerDernierProfil() {
-        // Tentative de récupération locale d'abord
         Profil dernier = accesLocal.recupDernier();
 
         if(dernier != null && vue != null) {
             vue.remplirChamps(dernier.getPoids(), dernier.getTaille(), dernier.getAge(), dernier.getSexe());
         }
 
-        // Optionnel : Mise à jour depuis l'API MySQL
         Call<ResponseApi<List<Profil>>> call = requestApi.getProfils();
         call.enqueue(new Callback<ResponseApi<List<Profil>>>() {
             @Override

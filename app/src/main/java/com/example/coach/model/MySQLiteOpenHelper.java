@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
-    // Propriétés de la base de données
     private String creation = "create table profil ("
             + "datemesure TEXT PRIMARY KEY,"
             + "poids INTEGER NOT NULL,"
@@ -28,7 +27,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Si changement de base de données (première création)
+     * Si changement de base de donnée
      * @param db
      */
     @Override

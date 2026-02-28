@@ -1,9 +1,11 @@
-package com.example.coach.contract; // On garde 'contract' si le fichier est dans ce dossier
+package com.example.coach.contract;
 
-public interface ICalculView {
+/**
+ * Interface pour la vue de calcul
+ */
+public interface ICalculView extends IAllView {
     /**
      * Affiche le résultat (IMG + Message)
-     * Utilise float pour correspondre à Profil.getImg()
      */
     void recapRender(float img, String message);
 

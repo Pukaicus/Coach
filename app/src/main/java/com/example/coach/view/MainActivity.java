@@ -8,7 +8,7 @@ import com.example.coach.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Déclaration des propriétés privées
+
     private ImageButton btnMonIMG;
     private ImageButton btnMonHistorique;
 
@@ -16,15 +16,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init(); // Appelé à la fin de onCreate
+        init();
     }
 
     /**
      * Initialisation globale
      */
     private void init() {
-        chargeObjetsGraphiques(); // Récupère les objets
-        creerMenu(); // Crée les écoutes
+        chargeObjetsGraphiques();
+        creerMenu();
     }
 
     /**
@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Méthode générique pour la redirection
-     * @param classe l'activité vers laquelle se diriger
      */
     private void ecouteMenu(Class classe) {
         Intent intent = new Intent(MainActivity.this, classe);
@@ -49,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void creerMenu() {
         btnMonIMG.setOnClickListener(v -> ecouteMenu(CalculActivity.class));
-        // Ligne mise en commentaire car HistoActivity n'est pas encore créée
-        // btnMonHistorique.setOnClickListener(v -> ecouteMenu(HistoActivity.class));
+        btnMonHistorique.setOnClickListener(v -> ecouteMenu(HistoActivity.class));
     }
 }

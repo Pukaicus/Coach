@@ -20,8 +20,6 @@ public class CalculPresenter {
 
     /**
      * Constructeur avec initialisation du contrôleur via le contexte
-     * @param view l'interface de la vue
-     * @param contexte le contexte de l'application
      */
     public CalculPresenter(ICalculView view, Context contexte) {
         this.view = view;

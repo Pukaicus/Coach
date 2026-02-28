@@ -10,6 +10,7 @@ import java.util.Date;
 
 public class ProfilDAO extends SQLiteOpenHelper {
 
+    // Configuration de la base de données
     private static final String DATABASE_NAME = "coach.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_PROFIL = "profil";
@@ -25,6 +26,7 @@ public class ProfilDAO extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // Création de la table avec la date en clé primaire
         String createTable = "CREATE TABLE " + TABLE_PROFIL + " (" +
                 COL_DATE_MESURE + " INTEGER PRIMARY KEY, " +
                 COL_POIDS + " INTEGER, " +
@@ -40,10 +42,14 @@ public class ProfilDAO extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * Ajoute un profil dans la base locale
+     */
     public void insertProfil(Profil profil) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
+        // On convertit la Date Java en Long pour SQLite
         values.put(COL_DATE_MESURE, profil.getDateMesure().getTime());
         values.put(COL_POIDS, profil.getPoids());
         values.put(COL_TAILLE, profil.getTaille());
@@ -54,10 +60,14 @@ public class ProfilDAO extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * Récupère le dernier profil calculé pour l'afficher au démarrage
+     */
     public Profil getLastProfil() {
         SQLiteDatabase db = this.getReadableDatabase();
         Profil profil = null;
 
+        // Tri par date décroissante pour avoir le plus récent
         String query = "SELECT * FROM " + TABLE_PROFIL + " ORDER BY " + COL_DATE_MESURE + " DESC LIMIT 1";
         Cursor cursor = db.rawQuery(query, null);
 
@@ -68,12 +78,22 @@ public class ProfilDAO extends SQLiteOpenHelper {
             int sexe = cursor.getInt(cursor.getColumnIndexOrThrow(COL_SEXE));
             long dateMesureLong = cursor.getLong(cursor.getColumnIndexOrThrow(COL_DATE_MESURE));
 
-            // CORRECTION : On met la Date en PREMIER argument
+            // On recrée l'objet Date à partir du Long
             profil = new Profil(new Date(dateMesureLong), poids, taille, age, sexe);
         }
 
         if (cursor != null) cursor.close();
         db.close();
         return profil;
+    }
+
+    /**
+     * Supprime un profil spécifique de la base locale
+     */
+    public void deleteProfil(Profil profil) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_PROFIL, COL_DATE_MESURE + " = ?",
+                new String[]{String.valueOf(profil.getDateMesure().getTime())});
+        db.close();
     }
 }

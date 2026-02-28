@@ -31,12 +31,14 @@
                         android:id="@+id/rdHomme"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:minHeight="48dp"
                         android:text="Homme" />
 
                     <RadioButton
                         android:id="@+id/rdfemme"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:minHeight="48dp"
                         android:text="Femme" />
                 </RadioGroup>
 

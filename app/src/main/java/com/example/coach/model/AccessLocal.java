@@ -36,20 +36,17 @@ public class AccessLocal {
     }
 
     /**
-     * Ajout d'un profil dans la base locale (SQLite) ET envoi vers MySQL (PC)
+     * Ajout d'un profil dans la base locale envoi vers MySQL
      */
     public void ajout(Profil profil){
-        // 1. Sauvegarde locale SQLite pour que l'appli garde les données sans internet
         bd = accesBD.getWritableDatabase();
         String req = "replace into profil (datemesure, poids, taille, age, sexe) values ";
         req += "(\""+profil.getDateMesure().toString()+"\","+profil.getPoids()+","+profil.getTaille()+","+profil.getAge()+","+profil.getSexe()+")";
         bd.execSQL(req);
 
-        // 2. ENVOI VERS MYSQL via Retrofit
         IRequestApi service = CoachApi.getRetrofit().create(IRequestApi.class);
         String profilJson = CoachApi.getGson().toJson(profil);
 
-        // On utilise "champs" car ton PHP l'attend
         Call<ResponseApi<Integer>> call = service.creerProfil(profilJson);
 
         call.enqueue(new Callback<ResponseApi<Integer>>() {
@@ -69,10 +66,6 @@ public class AccessLocal {
         });
     }
 
-    /**
-     * --- NOUVEAU : Récupère TOUS les profils pour remplir la liste HistoActivity ---
-     * C'est cette méthode qui répare l'erreur dans Controle.java
-     */
     public ArrayList<Profil> getLesProfils() {
         bd = accesBD.getReadableDatabase();
         ArrayList<Profil> lesProfils = new ArrayList<>();
@@ -80,8 +73,7 @@ public class AccessLocal {
         Cursor curseur = bd.rawQuery(req, null);
 
         while (curseur.moveToNext()) {
-            // On récupère les colonnes de la base locale
-            Date date = new Date(); // Pour l'instant on met la date actuelle
+            Date date = new Date();
             Integer poids = curseur.getInt(1);
             Integer taille = curseur.getInt(2);
             Integer age = curseur.getInt(3);

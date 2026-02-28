@@ -2,65 +2,67 @@ package com.example.coach.view;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.coach.R;
+import com.example.coach.contract.IHistoView;
 import com.example.coach.model.Profil;
-import com.example.coach.presenter.CalculPresenter;
-import java.util.ArrayList;
+import com.example.coach.presenter.HistoPresenter;
+import java.util.List;
 
-public class HistoActivity extends AppCompatActivity {
+/**
+ * Activité gérant l'affichage de l'historique via un RecyclerView
+ */
+public class HistoActivity extends AppCompatActivity implements IHistoView {
 
-    private CalculPresenter presenter;
+    private HistoPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_histo);
-
-        // 1. Initialisation du presenter avec le contexte pour la base de données
-        this.presenter = new CalculPresenter(null, getApplicationContext());
-
-        // 2. Récupération des données et remplissage de la liste
-        remplirListe();
-
-        // 3. Gestion du bouton Retour
-        initRetour();
+        init();
     }
 
     /**
-     * Récupère les profils et les envoie à l'adapter du RecyclerView
+     * Initialisation du presenter
      */
-    private void remplirListe() {
-        // On demande la liste des profils au presenter
-        ArrayList<Profil> lesProfils = presenter.getProfils();
+    private void init() {
+        presenter = new HistoPresenter(this);
+        presenter.chargerProfils();
+    }
 
-        if (lesProfils != null) {
-            // On lie le RecyclerView du XML
-            RecyclerView rv = findViewById(R.id.lstHisto);
+    /**
+     * Affiche la liste des profils reçue du Presenter
+     */
+    @Override
+    public void afficherListe(List<Profil> profils) {
+        if (profils != null) {
+            RecyclerView lstHisto = (RecyclerView) findViewById(R.id.lstHisto);
 
-            // On crée l'adapter avec les données
-            HistoListAdapter adapter = new HistoListAdapter(this, lesProfils);
-
-            // On applique l'adapter et le gestionnaire de layout
-            rv.setAdapter(adapter);
-            rv.setLayoutManager(new LinearLayoutManager(this));
+            HistoListAdapter adapter = new HistoListAdapter(profils, this, presenter);
+            lstHisto.setAdapter(adapter);
+            lstHisto.setLayoutManager(new LinearLayoutManager(HistoActivity.this));
         }
     }
 
     /**
-     * Initialise le bouton pour revenir au calcul
+     * Affiche un message d'information ou d'erreur
      */
-    private void initRetour() {
-        findViewById(R.id.btnRetourHisto).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HistoActivity.this, CalculActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+    @Override
+    public void afficherMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Redirige vers CalculActivity pour afficher le profil sélectionné
+     */
+    @Override
+    public void transfertProfil(Profil profil) {
+        Intent intent = new Intent(HistoActivity.this, CalculActivity.class);
+        intent.putExtra("profil", profil);
+        startActivity(intent);
     }
 }

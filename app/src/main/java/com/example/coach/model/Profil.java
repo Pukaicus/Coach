@@ -1,10 +1,15 @@
 package com.example.coach.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Profil {
+/**
+ * Classe représentant un profil utilisateur et ses calculs d'IMG
+ * Implémente Serializable pour permettre le transfert entre activités
+ */
+public class Profil implements Serializable {
 
-    // Constantes
+    // Constantes pour les calculs et messages
     private static final int MIN_FEMME = 25;
     private static final int MAX_FEMME = 30;
     private static final int MIN_HOMME = 15;
@@ -12,66 +17,68 @@ public class Profil {
     private static final String[] MESSAGE = {"trop faible", "normal", "trop élevé"};
     private static final String[] IMAGE = {"maigre", "normal", "graisse"};
 
-    // Propriétés transférées vers l'API
+    // Propriétés
+    private Integer id;
     private Date dateMesure;
     private Integer poids;
     private Integer taille;
     private Integer age;
     private Integer sexe;
 
-    // --- CORRECTION : Propriétés ignorées par Gson donc non envoyées vers l'API ---
-    private transient double img;
-    private transient int indice;
-
+    /**
+     * Constructeur pour créer un nouveau profil
+     */
     public Profil(Date dateMesure, Integer poids, Integer taille, Integer age, Integer sexe) {
         this.dateMesure = dateMesure;
         this.poids = poids;
         this.taille = taille;
         this.age = age;
         this.sexe = sexe;
-        this.img = calculImg();
-        this.indice = calculIndice();
     }
 
     /**
      * Calcul de l'IMG selon la formule officielle
      */
     private double calculImg() {
-        double tailleM = ((double)taille) / 100.0;
+        double tailleM = ((double) taille) / 100.0;
+        // Formule : (1.2 * IMC) + (0.23 * age) - (10.83 * sexe) - 5.4
         return (1.2 * poids / (tailleM * tailleM)) + (0.23 * age) - (10.83 * sexe) - 5.4;
     }
 
     /**
-     * Détermine l'indice (0, 1 ou 2) par rapport aux seuils homme/femme
+     * Détermine
      */
     private int calculIndice() {
+        double imgCalculée = calculImg();
+        // Sexe 0 = Femme, Sexe 1 = Homme
         int min = (sexe == 0) ? MIN_FEMME : MIN_HOMME;
         int max = (sexe == 0) ? MAX_FEMME : MAX_HOMME;
-        if (img < min) return 0;
-        if (img > max) return 2;
+
+        if (imgCalculée < min) return 0;
+        if (imgCalculée > max) return 2;
         return 1;
     }
 
-    // --- GETTERS ---
+
+    public Integer getId() { return id; }
     public Date getDateMesure() { return dateMesure; }
     public Integer getPoids() { return poids; }
     public Integer getTaille() { return taille; }
     public Integer getAge() { return age; }
     public Integer getSexe() { return sexe; }
-    public double getImg() { return img; }
-    public String getMessage() { return MESSAGE[indice]; }
 
     /**
-     * Retourne le nom de l'image (maigre, normal, graisse) pour la vue
+     * L'img est recalculé à chaque fois que getImg est appelée
      */
-    public String getImage() {
-        return IMAGE[indice];
+    public double getImg() {
+        return calculImg();
     }
 
-    /**
-     * Retourne vrai si l'indice est "normal" (1) pour la vue
-     */
-    public boolean normal() {
-        return indice == 1;
+    public String getMessage() {
+        return MESSAGE[calculIndice()];
+    }
+
+    public String getImage() {
+        return IMAGE[calculIndice()];
     }
 }

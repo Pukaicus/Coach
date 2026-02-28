@@ -20,7 +20,7 @@ import com.example.coach.R;
 public class MainActivityTest {
 
     @Rule
-    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
+    public ActivityScenarioRule<CalculActivity> activityRule = new ActivityScenarioRule<>(CalculActivity.class);
 
     @Test
     public void testCalculIMG(){

@@ -11,12 +11,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class CoachApi {
 
     /**
-     * URL de l'API (Adresse IP locale du PC sous Wamp)
+     * URL de l'API
      */
     private static final String API_URL = "http://192.168.1.16/rest_coach/src/";
 
     /**
-     * Instance unique de l'objet Retrofit (Singleton)
+     * Instance unique de l'objet Retrofit
      */
     private static Retrofit retrofit = null;
 
@@ -43,7 +43,6 @@ public class CoachApi {
 
     /**
      * Méthode de récupération de l'objet de conversion en json
-     * @return instance unique de Gson
      */
     public static Gson getGson() {
         return gson;
