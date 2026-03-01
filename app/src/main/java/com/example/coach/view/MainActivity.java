@@ -3,14 +3,21 @@ package com.example.coach.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.coach.R;
+import com.example.coach.contract.IAllView;
+import com.example.coach.presenter.MainPresenter;
 
-public class MainActivity extends AppCompatActivity {
-
+/**
+ * Activité du menu principal implémentant IAllView pour les messages
+ */
+public class MainActivity extends AppCompatActivity implements IAllView {
 
     private ImageButton btnMonIMG;
     private ImageButton btnMonHistorique;
+    private ImageButton btnPurge;
+    private MainPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
      * Initialisation globale
      */
     private void init() {
+        this.presenter = new MainPresenter(this);
+
         chargeObjetsGraphiques();
         creerMenu();
     }
@@ -33,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private void chargeObjetsGraphiques() {
         btnMonIMG = (ImageButton) findViewById(R.id.btnMonIMG);
         btnMonHistorique = (ImageButton) findViewById(R.id.btnMonHistorique);
+        btnPurge = (ImageButton) findViewById(R.id.btnPurge);
     }
 
     /**
@@ -40,14 +50,24 @@ public class MainActivity extends AppCompatActivity {
      */
     private void ecouteMenu(Class classe) {
         Intent intent = new Intent(MainActivity.this, classe);
-        startActivity(intent); // Méthode de la classe mère
+        startActivity(intent);
     }
 
     /**
-     * Crée les écoutes sur les boutons
+     * Crée les ecoute sur les boutons
      */
     private void creerMenu() {
         btnMonIMG.setOnClickListener(v -> ecouteMenu(CalculActivity.class));
         btnMonHistorique.setOnClickListener(v -> ecouteMenu(HistoActivity.class));
+
+        btnPurge.setOnClickListener(v -> presenter.purge());
+    }
+
+    /**
+     * Affiche les messages demander
+     */
+    @Override
+    public void afficherMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

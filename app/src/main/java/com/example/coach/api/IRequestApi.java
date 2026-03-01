@@ -15,9 +15,9 @@ public interface IRequestApi {
     @GET("index.php?tous")
     Call<ResponseApi<List<Profil>>> getProfils();
 
-    /**
-     * Correction : On pointe vers index.php et on passe le JSON dans le paramètre 'champs'
-     */
     @DELETE("index.php")
     Call<ResponseApi<Integer>> supprProfil(@Query("champs") String profilJson);
+
+    @GET("index.php?id=purge")
+    Call<ResponseApi<Integer>> purgeProfils();
 }
